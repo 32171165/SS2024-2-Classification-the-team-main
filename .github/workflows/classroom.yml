@@ -1,0 +1,75 @@
+name: Autograding Tests
+on:
+  - push
+  - workflow_dispatch
+  - repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Grading of the Information Gain Implementation (Task 1.1.1)
+      id: informationgain
+      uses: FAU-CS6-KDDmUe-Submissions/Custom-Python-Autograder@v1
+      with:
+        timeout: '15'
+        max-score: '4'
+        setup-command: 'pip install -r requirements.txt'
+        test-path: 'tests/information_gain/'
+    - name: Grading of the Gini Index Implementation (Task 1.1.2)
+      id: giniindex
+      uses: FAU-CS6-KDDmUe-Submissions/Custom-Python-Autograder@v1
+      with:
+        timeout: '15'
+        max-score: '4'
+        setup-command: 'pip install -r requirements.txt'
+        test-path: 'tests/gini_index/'
+    - name: Grading of the Decision Tree Induction Implementation (Task 1.2)
+      id: decisiontreeinduction
+      uses: FAU-CS6-KDDmUe-Submissions/Custom-Python-Autograder@v1
+      with:
+        timeout: '15'
+        max-score: '20'
+        setup-command: 'pip install -r requirements.txt'
+        test-path: 'tests/decision_tree/test_build_tree.py tests/decision_tree/test_calculate_gini_index.py tests/decision_tree/test_calculate_information_gain.py tests/decision_tree/test_find_best_split.py tests/decision_tree/test_fit.py'
+    - name: Grading of the Decision Tree Predict Implementation (Task 1.3)
+      id: decisiontreepredict
+      uses: FAU-CS6-KDDmUe-Submissions/Custom-Python-Autograder@v1
+      with:
+        timeout: '15'
+        max-score: '4'
+        setup-command: 'pip install -r requirements.txt'
+        test-path: 'tests/decision_tree/test_predict_tuple.py tests/decision_tree/test_predict.py'
+    - name: Grading of the Naive Bayes Training Implementation (Task 2.1)
+      id: naivebayestraining
+      uses: FAU-CS6-KDDmUe-Submissions/Custom-Python-Autograder@v1
+      with:
+        timeout: '15'
+        max-score: '14'
+        setup-command: 'pip install -r requirements.txt'
+        test-path: 'tests/naive_bayes/test_calculate_likelihoods.py tests/naive_bayes/test_calculate_prior_probabilities.py tests/naive_bayes/test_fit.py'
+    - name: Grading of the Naive Bayes Predict Implementation (Task 2.2)
+      id: naivebayespredict
+      uses: FAU-CS6-KDDmUe-Submissions/Custom-Python-Autograder@v1
+      with:
+        timeout: '15'
+        max-score: '4'
+        setup-command: 'pip install -r requirements.txt'
+        test-path: 'tests/naive_bayes/test_predict_tuple.py tests/naive_bayes/test_predict.py'
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        INFORMATIONGAIN_RESULTS: "${{steps.informationgain.outputs.result}}"
+        GINIINDEX_RESULTS: "${{steps.giniindex.outputs.result}}"
+        DECISIONTREEINDUCTION_RESULTS: "${{steps.decisiontreeinduction.outputs.result}}"
+        DECISIONTREEPREDICT_RESULTS: "${{steps.decisiontreepredict.outputs.result}}"
+        NAIVEBAYESTRAINING_RESULTS: "${{steps.naivebayestraining.outputs.result}}"
+        NAIVEBAYESPREDICT_RESULTS: "${{steps.naivebayespredict.outputs.result}}"
+      with:
+        runners: informationgain, giniindex, decisiontreeinduction, decisiontreepredict, naivebayestraining, naivebayespredict
